@@ -5,7 +5,7 @@ Created on Thu Jan 28 11:23:50 2021
 
 @author: fabianschweinzer
 """
-
+#welcome to our fantastic RoboAdvisor, we are Group 3 from MFIN Cohort 1
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,7 +15,10 @@ from matplotlib import style
 style.use('ggplot')
 
 
-#we read the sp500_data into the console, as the dataset is too big to load it into Pyth
+#we read the sp500_data into the console, as the dataset is too big to load it into Python
+#please update the path here in case you want to run that file
+#to date, 20.02.2021, I haven't figured out how to link the python script to my Github repo
+#I'm sorry for that, I will get better at this I swear
 sp500_data = pd.read_csv('/Users/fabianschweinzer/Desktop/Hult International Business School/MFIN/Python/Group Project Group 3/portfolio-modeling-main/S&P_Database_Final')
 # Welcome message for our Portfolio-Builiding Tool
 
@@ -144,6 +147,7 @@ test = input("test")
 
 print('#'*60)
 
+
 #get the database into the framework
 #we redefine the sp500_data as the given database and set the index to symbol
 database = sp500_data
@@ -175,7 +179,6 @@ cov_matrix = cov_matrix * 252
 #we use the python library "PyPortfolioOpt" for optimizing our portfolio
 #we first need to import the EfficientFrontier function and other built-in methods
 from pypfopt import EfficientFrontier
-from pypfopt import risk_models
 from pypfopt import expected_returns, objective_functions
 from pypfopt.risk_models import CovarianceShrinkage 
 from pypfopt import CLA, plotting
@@ -394,9 +397,9 @@ for x in range (num_simulations):
     count = 0 #instaniate the count
     daily_vol = historic_std.mean()
     
-    returns_series = []
+    returns_series = [] #instantiate a return series
     
-    returns_mc = last_return * (1 + np.random.normal(0, daily_vol))
+    returns_mc = last_return * (1 + np.random.normal(0, daily_vol)) #compound the returns with randomized returns
     returns_series.append(returns_mc)
     
     
@@ -421,105 +424,88 @@ plt.show()
 ##############################
 # Plot Count Distribution of Portfolio Returns and VaR
 
-
 # setting figure size
-fig, ax = plt.subplots(figsize = (13, 5))
+fig, ax = plt.subplots(figsize = (13, 5)) 
 
 #add the portfolio mean to the return dataframe, so we can use it as an input for the VaR graph
 historic_returns['Portfolio'] = historic_returns.mean(axis=1)
 
 # histogram for returns
-sns.histplot(data  = historic_returns['Portfolio'], # data set - index Facebook (or AAPL or GOOG)
-             bins  = 'fd',          # number of bins ('fd' = Freedman-Diaconis Rule) 
+sns.histplot(data  = historic_returns['Portfolio'], # data set
+             bins  = 'fd',          # number of bins
              kde   = True,          # kernel density plot (line graph)
              alpha = 0.2,           # transparency of colors
-             stat  = 'count')     # can be set to 'count', 'frequency', or 'probability'
+             stat  = 'count')    #use the count here to get the count distribution
 
 
 # this adds a title
 plt.title(label = "Distribution of Portfolio Return")
 
-
 # this adds an x-label
 plt.xlabel(xlabel = 'Returns')
-
 
 # this add a y-label
 plt.ylabel(ylabel = 'Count')
 
-
 # instantiate VaR with 95% confidence level
 VaR_95 = np.percentile(historic_returns, 5)
-
 
 # this adds a line to signify VaR
 plt.axvline(x         = VaR_95,         # x-axis location
             color     = 'r',            # line color
             linestyle = '--')           # line style
-
 
 # this adds a label to the line
 plt.text(VaR_95,                         # x-axis location
          30,                             # y-axis location
          'VaR',                          # text
-         horizontalalignment = 'right',  # alignment ('center' | 'left')
+         horizontalalignment = 'right',  # alignment
          fontsize = 'x-large')           # fontsize
 
-
-# these compile and display the plot so that it is formatted as expected
+#these compile and display the plot so that it is formatted as expected
 plt.tight_layout()
 plt.show()
 
-
 ######################
 #Plot a Density distribution of the Portfolio Returns
-
 # Plot Returns
 
 # setting figure size
 fig, ax = plt.subplots(figsize = (13, 5))
 
-
 # histogram for returns
-sns.histplot(data  = historic_returns,      # data set - index Facebook (or AAPL or GOOG)
-             bins  = 'fd',         # number of bins ('fd' = Freedman-Diaconis Rule) 
+sns.histplot(data  = historic_returns,      # data set
+             bins  = 'fd',         # number of bin
              kde   = True,         # kernel density plot (line graph)
              alpha = 0.3,          # transparency of colors
-             stat  = 'density')    # can be set to 'count', 'frequency', or 'probability'
-
+             stat  = 'density')    #set the stat to density to get the density distribution
 
 # this adds a title
 plt.title(label = "Distribution of Portfolio Returns")
 
-
 # this adds an x-label
 plt.xlabel(xlabel = 'Returns')
-
 
 # this add a y-label
 plt.ylabel(ylabel = 'Density')
 
-
 # instantiate VaR with 95% confidence level
 VaR_95 = np.percentile(historic_returns, 5)
-
 
 # this adds a line to signify VaR
 plt.axvline(x         = VaR_95,         # x-axis location
             color     = 'r',            # line color
             linestyle = '--')           # line style
 
-
 # this adds a label to the line
 plt.text(VaR_95,                         # x-axis location
          1,                             # y-axis location
          'VaR_95',                          # text
-         horizontalalignment = 'right',  # alignment ('center' | 'left')
+         horizontalalignment = 'right',  # alignment
          fontsize = 'x-large')           # fontsize
 
 # remove legend
 ax.get_legend().remove()
-
 
 # these compile and display the plot so that it is formatted as expected
 plt.tight_layout()
@@ -545,14 +531,15 @@ for b in beginning:
     # Print out the risk free rate to make sure it looks good
     print('risk-free rate:', riskfree_rate)
     
-    if risk_tolerance == 'Low':
-
+    #instantiate a conditional statement to select the strategy based on the given risk tolerance of the investor
+    if risk_tolerance == 'Low': 
+# if the investors has a low risk tolerance, we use a Inverse Volatiliy Strategy
         s_mark = bt.Strategy('Portfolio', 
                        [bt.algos.RunMonthly(),
                        bt.algos.SelectAll(),
                        bt.algos.WeighInvVol(),
                        bt.algos.Rebalance()])
-    
+  #if the investor is fairly risk tolerant or risk friendly we use the MeanVar strategy  
     elif risk_tolerance == 'Medium':
         s_mark = bt.Strategy('Portfolio', 
                        [bt.algos.RunEveryNPeriods(30,3),
@@ -560,47 +547,41 @@ for b in beginning:
                        bt.algos.WeighMeanVar(rf=riskfree_rate),
                        bt.algos.Rebalance()])
 
-
     else: 
         s_mark = bt.Strategy('Portfolio', 
-                       [bt.algos.RunEveryNPeriods(10,3),
+                       [bt.algos.RunEveryNPeriods(10,3), #we differentiate here for the given periods
                        bt.algos.SelectAll(),
                        bt.algos.WeighMeanVar(rf=riskfree_rate),
                        bt.algos.Rebalance()])
 
-
+    #instantiate the backtesting
     b_mark = bt.Backtest(s_mark, data_bt)
-
+    #in order to compare our strategy with a benchmark, we use the SP500 as an relative performance indicator
 
     # Fetch some data for the benchmark SP500
     data_sp500 = bt.get('spy,agg', start=b, end= b + offset)
 
-    # Recreate the strategy named First_Strat
+    # Recreate the strategy for the SP500, we use here an Equally Weighted strategy
     b_sp500 = bt.Strategy('SP500', [bt.algos.RunOnce(),
                                      bt.algos.SelectAll(),
                                      bt.algos.WeighEqually(),
                                      bt.algos.Rebalance()])
     
-    
-    #use the weightmeanvar graph
-    #plot the weights then
-
-    # Create a backtest named test
+    # Create a backtest named for the SP500
     sp500_test = bt.Backtest(b_sp500, data_sp500)
 
-    #run the backtest
+    #we run the backtest and get some results
     result = bt.run(b_mark, sp500_test)
 
     #create the run only for the b_mark
-    result_1 = bt.run(b_mark)
+    result_1 = bt.run(b_mark) #we need this result to get the return distribution later
 
     #result = bt.run(b_mark, b_inv, b_random, b_best, b_sp500)
     result.set_riskfree_rate(riskfree_rate)
     result.plot()
     
-    #show histogram
+    #show histogram based on the result_1 run, as we can't get the return distribution from the first run including the benchmark
     result_1.plot_histograms(bins=50, figsize=(20,10))
-
 
     # Show some performance metrics
     result.display()
